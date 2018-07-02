@@ -73,6 +73,73 @@ Run a "hello world" container:
     For more examples and ideas, visit:
     https://docs.docker.com/engine/userguide/
 
+
+### Troubleshoot "Cannot connect to the Docker daemon"
+
+Symptom:
+
+    Cannot connect to the Docker daemon at unix:///var/run/docker.sock.
+    Is the docker daemon running?
+
+Treatment:
+
+  * Docker may have quit or crashed. Try to launch Docker.
+
+  * On macOS, you should see the Docker icon in your menubar.
+
+  * On macOS, you should see the Docker socket:
+
+      $ ls -la /var/run/docker.sock
+      lrwxr-xr-x  1 root  daemon  64 Jul  2 10:31 /var/run/docker.sock -> /Users/me/Library/Containers/com.docker.docker/Data/s60
+
+
+### Troubleshoot "permission denied"
+
+Symptom:
+
+    docker: Got permission denied while trying to connect to the 
+    Docker daemon socket at unix:///var/run/docker.sock: 
+    Post http://%2Fvar%2Frun%2Fdocker.sock/v1.37/containers/create: 
+    dial unix /var/run/docker.sock: connect: permission denied.
+
+Treatment:
+ 
+  * The error message tells you that your current user can’t access the docker engine, because you’re lacking permissions to access the unix socket to communicate with the engine.
+
+  * Verify the issue affects any Docker command:
+
+        $ docker ps
+
+  * View the socket:
+
+       $ ls -la /var/run/docker.sock
+       lrwxr-xr-x  1 root  daemon  57 Jul  2 10:11 /var/run/docker.sock -> /Users/me/Library/Containers/com.docker.docker/Data/s60
+
+  * On macOS, did you launch Docker as one user, then switch to a second user? The treatment is to switch to the first user, then stop all Docker containers, then switch to the second user, then start Docker. 
+
+        $ docker stop $(docker ps -aq)
+
+  * See https://techoverflow.net/2017/03/01/solving-docker-permission-denied-while-trying-to-connect-to-the-docker-daemon-socket/
+
+  * As a temporary solution, use sudo to run the failed command as root.
+
+  * As a permanent solution, fix the issue by adding the current user to the docker group.
+
+    * On Linux:
+
+          sudo usermod -a -G docker $USER
+ 
+    * On macOs:
+
+          TODO
+
+  * Completely log out of your account and log back in. If in doubt, reboot!
+
+  * After doing that, you should be able to run the command without any issues. Run docker run hello-world as a normal user in order to check if it works. Reboot if the issue still persists. Logging out and logging back in is required because the group change will not have an effect unless your session is closed.
+
+
+### Experiment
+
 Experiment with various commands:
 
     $ docker images
@@ -145,6 +212,20 @@ Build:
     Successfully built da3fb243e03a
     Successfully tagged webserver-image:v1
 
+
+### Troubleshoot "unable to prepare context"
+
+Symptom:
+
+    unable to prepare context: unable to evaluate symlinks in Dockerfile path: lstat /Users/joel-omniex/tmp/demo-docker-area/Dockerfile: no such file or directory
+
+Treatment:
+
+  * The error message shows that Docker is not finding a Dockerfile. Do you have a Dockerfile in the directory, and is it readable?
+
+
+### Run
+
 Run:
 
     $ docker run -d -p 80:80 webserver-image:v1
@@ -175,3 +256,5 @@ Treatment:
 
   * Option 2: Use a different port e.g. `docker run -d -p 81:81 webserver-image:v1`
 
+
+### A
