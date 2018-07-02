@@ -257,4 +257,30 @@ Treatment:
   * Option 2: Use a different port e.g. `docker run -d -p 81:81 webserver-image:v1`
 
 
-### A
+### Add web page
+
+The Dockerfile above automatically copies all the local files to the NGINX html directory, because of this line:
+ 
+    COPY static-html-directory /usr/share/nginx/html
+
+When you run the docker build command above, you see the copy happen:
+
+    Step 2/2 : COPY . /usr/share/nginx/html
+
+The Docker container NGINX automatically serves a file name `index.html`, because of the NGINX default configuration.
+
+Create your own `index.html` file in the directory:
+
+    echo "Demo" > index.html
+
+Restart:
+
+    $ docker restart blissful_bhaskara 
+
+Browse http://localhost then reload the page in your browser, and you should see the "Demo" text.
+
+
+### See also
+
+* [Rebuild Docker container on file changes](https://stackoverflow.com/questions/41322541/rebuild-docker-container-on-file-changes/41323079)
+
